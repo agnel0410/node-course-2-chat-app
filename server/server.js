@@ -2,6 +2,7 @@ const path = require('path')
 const http = require('http')
 const express = require('express')
 const socketIO = require('socket.io')
+const {generateMessage} = require("./utils/message")
 
 //Setting up the http server and enabling web sockets on it
 const app = express()
@@ -17,24 +18,13 @@ app.use(express.static(publicPath))
 
 io.on('connection',(socket)=>{
   console.log('New user connected')
-  socket.emit('newMsg',{
-    from:'Admin',
-    text:'Welcome to Chat App',
-    createdAt: new Date().getTime()
-  })
-  socket.broadcast.emit('newMsg',{
-    from:'Admin',
-    text:'New user joined',
-    createdAt: new Date().getTime()
-  })
+  socket.emit('newMsg', generateMessage('Admin', 'Welcome to Chat App'))
+  socket.broadcast.emit('newMsg', generateMessage('Admin', 'New user joined'))
 
-   socket.on('createMsg',(msg)=>{
+   socket.on('createMsg',(msg,callback)=>{
      console.log('createMsg',msg)
-     socket.broadcast.emit('newMsg',{
-      from:msg.from,
-      text:msg.text,
-      createdAt: new Date().getTime()
-    })
+     socket.broadcast.emit('newMsg', generateMessage (msg.from, msg.text))
+     callback('From Server: Got it')
    })
 
   socket.on('disconnect',()=>{
