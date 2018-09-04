@@ -13,18 +13,22 @@ socket.on('newMsg',(msg)=>{
 
 jQuery('#message-form').on('submit', (e) => {
   e.preventDefault()
+  var messageTextbox = jQuery('[name=message]')
   socket.emit('createMsg',{
     from: 'User',
-    text: jQuery('[name=message]').val()
+    text: messageTextbox.val()
   },(ack)=>{
     console.log(ack)
+    messageTextbox.val('')
   })
 })
 
 const sendLocation= jQuery("#send-location")
 sendLocation.on('click',(e)=>{
  if(!navigator.geolocation) return alert("Geolocation not supported by your browser")
- else {
+
+  sendLocation.attr('disabled','disabled').text('Sending location...')
+ 
    navigator.geolocation.getCurrentPosition((position)=>{
     socket.emit('createLocation',{
       from: 'User',
@@ -32,12 +36,13 @@ sendLocation.on('click',(e)=>{
       longitude: position.coords.longitude
     },(ack)=>{
       console.log(ack)
+      sendLocation.removeAttr('disabled').text('Send location')      
     }
     )
    },(err)=>{
      return alert("Unable to find geolocation")
    })
- }
+ 
 })
 
 socket.on('newLocationMsg',(msg)=>{

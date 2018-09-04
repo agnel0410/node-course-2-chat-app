@@ -23,8 +23,8 @@ io.on('connection',(socket)=>{
 
   socket.on('createMsg',(msg,callback)=>{
      console.log('createMsg',msg)
-     socket.broadcast.emit('newMsg', generateMessage (msg.from, msg.text))
-     callback('From Server: Got it')
+     io.emit('newMsg', generateMessage (msg.from, msg.text))
+     callback()
    })
 
   socket.on('createLocation',(location,callback)=>{
