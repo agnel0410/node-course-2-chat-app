@@ -2,7 +2,7 @@ const path = require('path')
 const http = require('http')
 const express = require('express')
 const socketIO = require('socket.io')
-const {generateMessage} = require("./utils/message")
+const { generateMessage, generateLocationMessage} = require("./utils/message")
 
 //Setting up the http server and enabling web sockets on it
 const app = express()
@@ -21,11 +21,17 @@ io.on('connection',(socket)=>{
   socket.emit('newMsg', generateMessage('Admin', 'Welcome to Chat App'))
   socket.broadcast.emit('newMsg', generateMessage('Admin', 'New user joined'))
 
-   socket.on('createMsg',(msg,callback)=>{
+  socket.on('createMsg',(msg,callback)=>{
      console.log('createMsg',msg)
      socket.broadcast.emit('newMsg', generateMessage (msg.from, msg.text))
      callback('From Server: Got it')
    })
+
+  socket.on('createLocation',(location,callback)=>{
+    callback('from:Admin  location message received')
+    socket.broadcast.emit('newLocationMsg', generateLocationMessage(location.from, location.latitude,location.longitude))
+  })
+
 
   socket.on('disconnect',()=>{
     console.log('User disconnected')
