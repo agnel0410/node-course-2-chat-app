@@ -1,4 +1,9 @@
 //Initiate a connection from client to server for a web socket connection and keep that connection open
+const getFormatedTime= (createdAt) => {
+  var formatedTime = moment(msg.createdAt).format('h:mm a')
+  return formatedTime
+} 
+
 const socket = io()
 socket.on('connect', () => {
   console.log('Connected to Server')
@@ -6,8 +11,9 @@ socket.on('connect', () => {
 
 socket.on('newMsg',(msg)=>{
   console.log('Received chat from the server',msg)
+  var formatedTime = getFormatedTime(msg.createdAt)
   var li = jQuery('<li></li>')
-  li.text(`${msg.from}: ${msg.text}`)
+  li.text(`${msg.from} ${formatedTime}: ${msg.text}`)
   jQuery('#messages').append(li)
 })
 
@@ -16,7 +22,7 @@ jQuery('#message-form').on('submit', (e) => {
   var messageTextbox = jQuery('[name=message]')
   socket.emit('createMsg',{
     from: 'User',
-    text: messageTextbox.val()
+    text: messageTextbox.val(),
   },(ack)=>{
     console.log(ack)
     messageTextbox.val('')
