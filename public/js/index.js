@@ -11,10 +11,14 @@ socket.on('connect', () => {
 
 socket.on('newMsg',(msg)=>{
   console.log('Received chat from the server',msg)
-  var formatedTime = getFormatedTime(msg.createdAt)
-  var li = jQuery('<li></li>')
-  li.text(`${msg.from} ${formatedTime}: ${msg.text}`)
-  jQuery('#messages').append(li)
+  var formatedTime = moment(msg.createdAt).format('h:mm a')
+  const messageTemplate=jQuery('#message-template').html()
+  const html = Mustache.render(messageTemplate,{
+    text:msg.text,
+    from:msg.from,
+    time:formatedTime
+  })
+  jQuery('#messages').append(html)
 })
 
 jQuery('#message-form').on('submit', (e) => {
@@ -39,7 +43,8 @@ sendLocation.on('click',(e)=>{
     socket.emit('createLocation',{
       from: 'User',
       latitude: position.coords.latitude, 
-      longitude: position.coords.longitude
+      longitude: position.coords.longitude,
+
     },(ack)=>{
       console.log(ack)
       sendLocation.removeAttr('disabled').text('Send location')      
@@ -52,12 +57,14 @@ sendLocation.on('click',(e)=>{
 })
 
 socket.on('newLocationMsg',(msg)=>{
-  const li = jQuery('<li></li>')
-  const a =jQuery('<a target="_blank">My current location</a>')
-  li.text(`${msg.from}: `)
-  a.attr('href',msg.url)
-  li.append(a)
-  jQuery('#messages').append(li)
+  var formatedTime = moment(msg.createdAt).format('h:mm a')
+  const locationTemplate = jQuery('#location-template').html()
+  const html=Mustache.render(locationTemplate,{
+    from:msg.from,
+    url:msg.url,
+    time:formatedTime
+  })
+  jQuery('#messages').append(html)
 })
 
 socket.on('disconnect', () => {
