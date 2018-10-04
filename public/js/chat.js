@@ -1,10 +1,9 @@
-//Initiate a connection from client to server for a web socket connection and keep that connection open
+
 const getFormatedTime= (createdAt) => {
   var formatedTime = moment(msg.createdAt).format('h:mm a')
   return formatedTime
 } 
 
-const socket = io()
 
 const scrollToBottom=()=>{
   //selectors
@@ -21,8 +20,19 @@ const scrollToBottom=()=>{
     messages.scrollTop(scrollHeight)
   }
 }
+//Initiate a connection from client to server for a web socket connection and keep that connection open
+const socket = io()
 socket.on('connect', () => {
   console.log('Connected to Server')
+  var params=jQuery.deparam(window.location.search)
+  socket.emit('join',params,(err)=>{
+    if (err){
+      console.log(err)
+      alert(err)
+      window.location.href ='/index.html'
+    }
+    else console.log('Joined chat room without any error')
+  })
 })
 
 socket.on('newMsg',(msg)=>{
@@ -48,6 +58,19 @@ jQuery('#message-form').on('submit', (e) => {
     console.log(ack)
     messageTextbox.val('')
   })
+})
+
+socket.on('updateUserList',(users)=>{
+  console.log('users', users)
+  const ol = jQuery('<ol></ol>')
+  users.forEach(element => {
+    let li = jQuery('<li></li>')
+    li.text(element)
+    ol.append(li)
+  })
+
+  jQuery('#users').html(ol)
+  
 })
 
 const sendLocation= jQuery("#send-location")
