@@ -39,13 +39,20 @@ io.on('connection',(socket)=>{
 
   socket.on('createMsg', (msg, callback) => {
     console.log('createMsg', msg)
-    io.emit('newMsg', generateMessage(msg.from, msg.text))
-    callback()
+    const user = users.getUser(socket.id)
+    if (user && isRealString(msg.text)){
+      io.to(user.roomName).emit('newMsg', generateMessage(user.name, msg.text))
+      callback()
+    }
+
   })
 
   socket.on('createLocation',(location,callback)=>{
     callback('from:Admin  location message received')
-    socket.broadcast.emit('newLocationMsg', generateLocationMessage(location.from, location.latitude,location.longitude))
+    const user = users.getUser(socket.id)
+    if(user){
+      socket.to(user.roomName).broadcast.emit('newLocationMsg', generateLocationMessage(user.name, location.latitude, location.longitude))
+    } 
   })
 
 
